@@ -449,7 +449,7 @@ Key engineering milestones achieved in this project:
 
 ---
 
-## 🔒 Security & HIPAA Alignment
+## 🔒 Security Considerations
 
 *   **Audio Encryption**: Uploaded audio files are stored locally in isolated directories with restricted read/write permissions. In cloud staging, files are encrypted at rest using AES-256.
 *   **PII De-Identification**: No direct Patient Health Information (PHI) is stored alongside risk scores. Sessions use randomized UUIDs (`subject_reference`), maintaining isolation from demographic data.
