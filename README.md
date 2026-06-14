@@ -12,6 +12,11 @@
     *   Explainable Risk Scoring
 
 ---
+## 🎥 Demo Video
+
+Watch the project demo here:
+
+[Demo Video](https://youtu.be/956ByYGAoHg)
 
 # Cognitive Voice Intelligence Platform
 
