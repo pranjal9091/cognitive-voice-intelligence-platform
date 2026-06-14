@@ -1,3 +1,13 @@
+---
+title: Cognitive Voice Backend
+emoji: 🎙️
+colorFrom: indigo
+colorTo: blue
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # AI/ML Internship Technical Assessment Submission
 
 *   **Project:** Cognitive Voice Intelligence Platform (CVIP)
