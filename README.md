@@ -57,51 +57,41 @@ By analyzing voice recordings across three standardized verbal prompts (Morning 
 
 ```mermaid
 graph TD
-    %% Node Styling Rules
-    classDef client fill:#eef,stroke:#33f,stroke-width:2px;
-    classDef server fill:#efe,stroke:#3d3,stroke-width:2px;
-    classDef storage fill:#fee,stroke:#f33,stroke-width:2px;
-    classDef pipeline fill:#ffe,stroke:#dca,stroke-width:2px;
 
-    User([Subject / Candidate]) -->|Record Voice Response| UI[Next.js Browser Client]:::client
+    User([Subject / Candidate]) -->|Record Voice Response| UI[Next.js Browser Client]
     Clinician([Clinician / Evaluator]) -->|Access Dashboard| UI
-    
-    subgraph FastAPIContainer ["FastAPI Backend Service"]
+
+    subgraph FastAPIBackend["FastAPI Backend Service"]
         Router[API Gateway & Routers]
         ASRService[ASR Transcription Orchestrator]
         AnalyticsService[Speech Analytics Engine]
         ScoringService[Risk Scoring Service]
     end
 
-    subgraph WhisperModel ["ASR Engine"]
-        Whisper[Faster-Whisper CTranslate2 Engine]
+    subgraph WhisperEngine["ASR Engine"]
+        Whisper[Faster-Whisper CTranslate2]
     end
 
-    subgraph DatabaseContainer ["Database Engine"]
-        PostgreSQL[(PostgreSQL Instance)]
+    subgraph Database["PostgreSQL Database"]
+        PostgreSQL[(PostgreSQL)]
     end
 
-    UI -->|POST /upload WAV audio| Router
-    Router -->|Store Audio Files| Disk[(Local Uploads Volume)]:::storage
-    Router -->|CRUD Session & Metadata| PostgreSQL
-    
+    UI -->|POST /upload| Router
+    Router -->|Store Audio Files| Disk[(Uploads Volume)]
+    Router -->|Store Metadata| PostgreSQL
+
     Router -->|POST /transcribe| ASRService
-    ASRService -->|Transcription Request| Whisper
-    Whisper -->|Auto Language Detection / Speech-to-Text| ASRService
-    ASRService -->|Store Transcripts & Timestamps| PostgreSQL
+    ASRService --> Whisper
+    Whisper --> ASRService
+    ASRService --> PostgreSQL
 
     Router -->|POST /analyze| AnalyticsService
-    AnalyticsService -->|Calculate WPM, Pauses, Fillers| PostgreSQL
+    AnalyticsService --> PostgreSQL
 
     Router -->|POST /score| ScoringService
-    ScoringService -->|Rule-Based Scoring Model| PostgreSQL
-    
-    UI -->|GET /session/{id}| Router
+    ScoringService --> PostgreSQL
 
-    %% Subgraph Styling
-    style FastAPIContainer fill:#efe,stroke:#3d3,stroke-width:2px;
-    style WhisperModel fill:#ffe,stroke:#dca,stroke-width:2px;
-    style DatabaseContainer fill:#fee,stroke:#f33,stroke-width:2px;
+    UI -->|GET Session Results| Router
 ```
 
 ---
