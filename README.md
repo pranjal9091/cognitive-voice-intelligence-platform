@@ -1,3 +1,18 @@
+# AI/ML Internship Technical Assessment Submission
+
+*   **Project:** Cognitive Voice Intelligence Platform (CVIP)
+*   **Author:** Pranjal Singh
+*   **Institute:** IIIT Ranchi
+*   **Focus Areas:**
+    *   Speech AI
+    *   FastAPI
+    *   PostgreSQL
+    *   Docker
+    *   Next.js
+    *   Explainable Risk Scoring
+
+---
+
 # Cognitive Voice Intelligence Platform
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
@@ -7,15 +22,15 @@
 [![Database](https://img.shields.io/badge/PostgreSQL-15-336791.svg)](https://www.postgresql.org/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-An enterprise-grade, HIPAA-compliant AI/ML voice analytics and cognitive health risk assessment platform. This monorepo implements browser-based audio recording, background audio transcoding (FFmpeg), automated multilingual transcription (Faster-Whisper), speech acoustic metrics extraction, and clinical rule-based cognitive impairment risk scoring.
+A production-grade, containerized AI/ML voice analytics and cognitive health screening platform. This monorepo integrates HTML5 browser recording, automated background audio transcoding (via FFmpeg subprocesses), localized speech-to-text (via CTranslate2-optimized Faster-Whisper), acoustic/linguistic feature processing, and a deterministic clinical risk scoring engine to classify cognitive-linguistic impairment factors with explainable reasoning.
 
 ---
 
 ## 👁️ Problem Statement
 
-Cognitive disorders (such as early-stage dementia, Alzheimer's, or neurological fatigue) manifest subtle variations in acoustic pacing, speech flow, and linguistic structuring long before clinical signs are visible on neuroimaging. 
+Cognitive disorders (such as early-stage dementia, Alzheimer's, or neurological fatigue) manifest subtle variations in acoustic pacing, speech flow, and linguistic structuring long before clinical signs are visible on neuroimaging.
 
-Traditional cognitive screenings (e.g., MMSE) are manually administered, highly subjective, and resource-intensive. Clinicians lack automated, reproducible, and non-invasive tools to quantify vocal pacing, formulation delays, and vocabulary simplification during verbal tasks.
+Traditional screenings (such as the Mini-Mental State Examination, or MMSE) are manually administered, subjective, and resource-intensive. Clinicians lack reproducible, non-invasive tools to quantitatively analyze vocal pacing, speech formulation latencies, and vocabulary simplification during structured verbal tasks.
 
 ---
 
@@ -23,7 +38,7 @@ Traditional cognitive screenings (e.g., MMSE) are manually administered, highly 
 
 The **Cognitive Voice Intelligence Platform (CVIP)** provides a fully automated, objective vocal biomarker analysis pipeline. 
 
-By analyzing voice recordings across three standardized prompts (Morning Routine, Memorable Event, Favourite Festival), the platform extracts high-fidelity temporal and linguistic metrics. These are processed through a deterministic clinical scoring engine to classify cognitive-linguistic risk levels (Low, Medium, High Risk) with explainable contributing factors.
+By analyzing voice recordings across three standardized verbal prompts (Morning Routine, Memorable Event, and Favourite Festival), the platform extracts high-fidelity temporal and linguistic metrics. These are processed through a deterministic clinical scoring engine to classify cognitive-linguistic risk levels (Low, Medium, High Risk) with explainable contributing factors.
 
 ---
 
@@ -38,25 +53,11 @@ By analyzing voice recordings across three standardized prompts (Morning Routine
 
 ---
 
-## 🛠️ Technology Stack
-
-| Component | Technology | Description |
-| :--- | :--- | :--- |
-| **Frontend** | React / Next.js | Modern dashboard & multi-step assessment UI |
-| **Language** | TypeScript / Python | Type-safe client and high-performance backend |
-| **Backend** | FastAPI | Async ASGI REST API framework |
-| **Speech AI** | Faster-Whisper | Localized, optimized Whisper CTranslate2 engine |
-| **Database** | PostgreSQL 15 | Relational storage for clinical sessions and scores |
-| **ORM** | SQLAlchemy | Async database query mapping |
-| **Ingestion** | FFmpeg | Audio standardization (PCM WAV 16kHz, Mono) |
-| **Deployment**| Docker / Compose | Multi-container environment orchestration |
-
----
-
 ## 🏗️ System Architecture
 
 ```mermaid
 graph TD
+    %% Node Styling Rules
     classDef client fill:#eef,stroke:#33f,stroke-width:2px;
     classDef server fill:#efe,stroke:#3d3,stroke-width:2px;
     classDef storage fill:#fee,stroke:#f33,stroke-width:2px;
@@ -65,18 +66,18 @@ graph TD
     User([Subject / Candidate]) -->|Record Voice Response| UI[Next.js Browser Client]:::client
     Clinician([Clinician / Evaluator]) -->|Access Dashboard| UI
     
-    subgraph FastAPI Container [FastAPI Backend Service]:::server
+    subgraph FastAPIContainer ["FastAPI Backend Service"]
         Router[API Gateway & Routers]
         ASRService[ASR Transcription Orchestrator]
         AnalyticsService[Speech Analytics Engine]
         ScoringService[Risk Scoring Service]
     end
 
-    subgraph Whisper Model [ASR Engine]:::pipeline
+    subgraph WhisperModel ["ASR Engine"]
         Whisper[Faster-Whisper CTranslate2 Engine]
     end
 
-    subgraph Database Container [Database Engine]:::storage
+    subgraph DatabaseContainer ["Database Engine"]
         PostgreSQL[(PostgreSQL Instance)]
     end
 
@@ -96,6 +97,11 @@ graph TD
     ScoringService -->|Rule-Based Scoring Model| PostgreSQL
     
     UI -->|GET /session/{id}| Router
+
+    %% Subgraph Styling
+    style FastAPIContainer fill:#efe,stroke:#3d3,stroke-width:2px;
+    style WhisperModel fill:#ffe,stroke:#dca,stroke-width:2px;
+    style DatabaseContainer fill:#fee,stroke:#f33,stroke-width:2px;
 ```
 
 ---
@@ -104,9 +110,9 @@ graph TD
 
 The assessment pipeline executes sequentially to protect data integrity and optimize processing:
 
-1.  **Audio Upload (`/upload`)**: Next.js records audio chunks in the browser and uploads the file. The FastAPI backend standardizes the input via FFmpeg, stripping long silences and normalizing loudness.
+1.  **Audio Ingestion (`/upload`)**: Next.js client records raw audio chunks in the browser and uploads the file. The FastAPI backend standardizes the input via FFmpeg, stripping silent buffers and normalizing amplitude.
 2.  **Speech Transcription (`/transcribe`)**: Faster-Whisper decodes the audio, runs automatic language detection, and outputs word-level timestamps.
-3.  **Speech Analytics (`/analyze`)**: The analytics engine parses word-level timestamps and raw audio to calculate speaking rate, formulations pauses, and vocabulary diversity.
+3.  **Speech Analytics (`/analyze`)**: The analytics engine parses word-level timestamps and raw audio to calculate speaking rate, formulation pauses, and vocabulary diversity.
 4.  **Risk Scoring (`/score`)**: Evaluates temporal and linguistic parameters against clinical rules, mapping factors into an overall score and classification.
 5.  **Dashboard Display (`GET /session/{id}`)**: Aggregates transcripts, acoustic charts, and scores on the Next.js visual dashboard.
 
@@ -149,8 +155,8 @@ erDiagram
         jsonb words_json
         float confidence
         varchar language
-        double_precision language_probability
-        double_precision average_segment_confidence
+        double language_probability
+        double average_segment_confidence
         float processing_time_seconds
         timestamptz created_at
     }
@@ -189,15 +195,16 @@ erDiagram
 
 ## 🔌 API Documentation
 
-| Method | Endpoint | Description | Payload |
+The platform provides a structured, asynchronous REST API for clinical assessment operations. Interactive Swagger UI is available at `http://localhost:8000/docs`.
+
+| Method | Endpoint | Description | Payload / Response |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/upload` | Receives raw audio file and standardizes it to WAV format. | Multipart: `audio_file`, `session_id` (optional), `question_number` (optional) |
-| `POST` | `/transcribe` | Executes speech-to-text with auto-detect and word-level timestamps. | JSON: `{"session_id": "UUID"}` |
-| `POST` | `/analyze` | Extracts temporal and linguistic features from the transcripts. | JSON: `{"session_id": "UUID"}` |
-| `POST` | `/score` | Runs cognitive-linguistic risk calculation models. | JSON: `{"session_id": "UUID"}` |
-| `GET` | `/api/v1/sessions` | Lists session records and overall risk profiles. | Query: `limit=20`, `offset=0` |
-| `GET` | `/api/v1/sessions/{id}`| Retrieves complete clinical results for a given session. | Path: `id` |
-| `GET` | `/health` | Diagnostic check for backend service and database connection. | None |
+| `GET` | `/health` | Diagnostic check validating backend availability, model availability, and database connectivity. | Response: `{"status": "healthy", ...}` |
+| `POST` | `/upload` | Receives raw audio file and standardizes it to clinical-grade PCM WAV format (16kHz, mono, 16-bit) using FFmpeg. | Multipart: `audio_file`, `session_id` (optional), `question_number` (optional) |
+| `POST` | `/transcribe` | Executes speech-to-text with automatic language detection and word-level timestamps using Faster-Whisper. | JSON: `{"session_id": "UUID"}` |
+| `POST` | `/analyze` | Computes speech analytics, including temporal parameters (pauses) and linguistic markers (lexical density, filler words). | JSON: `{"session_id": "UUID"}` |
+| `POST` | `/score` | Runs the deterministic risk scoring engine mapping clinical thresholds to Low/Medium/High risk classifications. | JSON: `{"session_id": "UUID"}` |
+| `GET` | `/api/v1/sessions/{session_id}` | Retrieves the complete session dossier (audio metadata, transcripts, acoustic metrics, and risk assessment). | Path Parameter: `session_id` (UUID) |
 
 ---
 
@@ -264,121 +271,153 @@ $$\text{Risk Score} = w_{\text{wpm}} + w_{\text{pause}} + w_{\text{duration}} + 
 The speech pipeline is optimized for multilingual settings, featuring native support for English, Hindi, and Hinglish code-switching:
 
 *   **Automatic Language Detection**: The system reads the initial audio segment using `model.detect_language()` to identify the primary language.
-*   **Multilingual Script Mixing**: When Hindi (`hi` or `ur`) is detected, the pipeline automatically activates **multilingual decoding** (`multilingual=True`) and uses a loop prevention token constraint (`no_repeat_ngram_size=4`). This prevents English words from being phonetically transliterated into Devanagari script, allowing spoken English words to remain in Latin characters and Hindi words to remain in Devanagari characters (e.g., transcribing *"I woke up at 5, फिर उसके बाद..."* naturally).
+*   **Multilingual Script Mixing**: When Hindi (`hi` or `ur`) is detected, the pipeline automatically activates **multilingual decoding** (`multilingual=True`) and uses a loop prevention token constraint (`no_repeat_ngram_size=4`). This prevents English words from being phonetically transliterated into Devanagari script, allowing spoken English words to remain in Latin characters and Hindi words to remain in Devanagari characters.
 
 ---
 
-## 📁 Project Structure
+## 🗄️ Repository Structure
 
 ```text
-cognitive-voice-platform/
-├── backend/                    # FastAPI Web Service
+.
+├── .env.example                # Template for environment variables configuration
+├── .gitignore                  # Git untracked files pattern definitions
+├── LICENSE                     # Apache 2.0 open-source license
+├── README.md                   # Main platform repository documentation
+├── docker-compose.yml          # Local multi-container development orchestration
+├── backend/                    # FastAPI ASGI application service
 │   ├── app/
-│   │   ├── core/               # Database, Configs & Logging configs
-│   │   ├── schemas/            # Pydantic validation schemas
-│   │   ├── services/           # Speech AI, Analytics & Risk Scoring services
-│   │   ├── main.py             # FastAPI entrypoint, middlewares & API routes
-│   │   └── test_endpoints.py   # Integration & clinical mock tests
-│   ├── download_whisper.py     # Local model downloader
-│   ├── profile_transcribe.py   # Accuracy and performance profiling tool
-│   ├── profile_threads.py      # CPU thread concurrency profiling tool
-│   └── requirements.txt        # Python backend package dependencies
-├── database/                   # PostgreSQL Configurations
-│   ├── models/                 # SQLAlchemy schemas (sessions, audio, risk, metrics)
-│   └── schema.sql              # Clean DDL schema definitions
-├── frontend/                   # Next.js Application Client
-│   ├── app/                    # Next.js App Router (Dashboard, Recording pages)
-│   ├── components/             # Reusable UI component modules
-│   └── package.json            # Node.js dependencies configuration
-├── infrastructure/             # Container Management
-│   └── docker/                 # Service Dockerfiles (backend, frontend, database)
-├── scripts/                    # Automation Scripts
-│   ├── db_init.py              # Schema initialisation script
-│   └── setup_dev.sh            # Development sandbox setup tool
-├── docker-compose.yml          # Container stack orchestration config
-├── .env.example                # Global configuration environment template
-└── README.md                   # Repository documentation
+│   │   ├── core/               # Configuration, security, and logging parameters
+│   │   ├── schemas/            # Pydantic data validation and serialization schemas
+│   │   ├── services/           # Speech AI, analytics engine, and scoring rules logic
+│   │   ├── main.py             # FastAPI entrypoint, router definitions, and middleware
+│   │   └── test_endpoints.py   # Endpoint integration and clinical validation tests
+│   ├── download_whisper.py     # Local downloader for Faster-Whisper model weights
+│   ├── profile_threads.py      # Threading and concurrency optimizer script
+│   ├── profile_transcribe.py   # Transcription latency and accuracy benchmarking tool
+│   └── requirements.txt        # Python backend package dependencies definition
+├── database/                   # PostgreSQL DDL and DB components
+│   ├── models/                 # SQLAlchemy ORM schemas mapping clinical tables
+│   └── schema.sql              # Database DDL initialization definitions
+├── docs/                       # Project documentation & visual assets
+│   ├── api_spec.md             # REST API endpoint details
+│   ├── architecture.md         # In-depth architectural design specifications
+│   ├── coding_standards.md     # Code style and review guidelines
+│   ├── database_design.md      # Relational schemas and constraints analysis
+│   ├── system_design.md        # Component communication and scalability patterns
+│   └── screenshots/            # Visual UI/UX flow and application screens
+│       ├── docker.png          # Active containers log/status screen
+│       ├── home-page.png       # Session lists and analytics dashboard screen
+│       ├── recording-screen.png # Audio capture client screen
+│       └── swagger.png         # Backend OpenAPI/ReDoc documentation screen
+├── frontend/                   # Next.js UI web client
+│   ├── app/                    # Next.js App Router pages (Assessment, Dashboard)
+│   ├── components/             # Reusable UI/UX component components
+│   ├── package.json            # Node.js client package configuration
+│   └── tsconfig.json           # TypeScript compilation configuration
+├── infrastructure/             # Container orchestration and deployment manifests
+│   ├── README.md               # Infrastructure and build-specific guidelines
+│   └── docker/                 # Production-grade Dockerfiles
+│       ├── backend.Dockerfile  # Optimized Whisper/Python backend image
+│       ├── frontend.Dockerfile # Multi-stage Node/Next.js frontend build image
+│       └── postgres.Dockerfile # Tailored clinical PostgreSQL database image
+└── scripts/                    # Automation and developer utility tools
+    ├── README.md               # Scripts usage instructions
+    ├── db_init.py              # Automated database schema creation script
+    └── setup_dev.sh            # Development environment initialization script
 ```
 
 ---
 
-## 💻 Local Development Setup
+## 📖 Documentation
 
-### Prerequisites
-*   Docker & Docker Compose installed.
-*   FFmpeg installed locally (if running without Docker).
+Detailed technical design and operational guides are organized within the repository structure:
 
-### Ingestion Stack Execution (Docker)
-
-1.  **Clone the repository**:
-    ```bash
-    git clone https://github.com/cognitive-voice-platform.git
-    cd cognitive-voice-platform
-    ```
-2.  **Configure environment**:
-    ```bash
-    cp .env.example .env
-    ```
-3.  **Launch Docker containers**:
-    ```bash
-    docker compose up --build -d
-    ```
-    *This starts the Next.js client on `http://localhost:3000` and the FastAPI server on `http://localhost:8000`.*
-
----
-
-## ⚙️ Running Without Docker
-
-### 1. Database (Local PostgreSQL)
-*   Ensure PostgreSQL is running locally on port `5432` with a database named `cognitive_voice_db`.
-*   Run database initialization:
-    ```bash
-    python scripts/db_init.py
-    ```
-
-### 2. Backend Service
-1.  Navigate to the backend directory and create a virtual environment:
-    ```bash
-    cd backend
-    python3 -m venv venv
-    source venv/bin/activate
-    ```
-2.  Install dependencies:
-    ```bash
-    pip install -r requirements.txt
-    ```
-3.  Launch the development server:
-    ```bash
-    uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-    ```
-
-### 3. Frontend Client
-1.  Navigate to the frontend directory:
-    ```bash
-    cd ../frontend
-    npm install
-    ```
-2.  Launch Next.js:
-    ```bash
-    npm run dev
-    ```
-
----
-
-## 📖 Swagger Documentation
-
-Once the backend is running, the interactive OpenAPI/Swagger documentation is available at:
-*   **OpenAPI Documentation**: [http://localhost:8000/docs](http://localhost:8000/docs)
-*   **ReDoc Specification**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
+*   **Primary Guide**: [README.md](README.md) - System overview, technology stack, and quickstart deployment.
+*   **Architecture Specification**: [Architecture Document](docs/architecture.md) - In-depth breakdown of components, security models, and speech processing patterns.
+*   **API Specification**: [API Documentation](docs/api_spec.md) - Comprehensive payload schemas, response structures, and API behaviors.
+*   **Database Design**: [Database Design Document](docs/database_design.md) - Relational entity relationship mappings, schemas, and constraint details.
+*   **Infrastructure & Deployment**: [Deployment Instructions](infrastructure/README.md) - Container build parameters, port mappings, and orchestrations.
 
 ---
 
 ## 🖼️ Screenshots
 
-*   **Home Dashboard View**: `screenshots/home.png`
-*   **Vocal Assessment Recording UI**: `screenshots/recording.png`
-*   **Speech Analytics Metrics Charts**: `screenshots/dashboard.png`
-*   **Interactive Swagger API Interface**: `screenshots/swagger.png`
+### Assessment Interface
+![Assessment Interface](docs/screenshots/home-page.png)
+
+### Recording Screen
+![Recording Screen](docs/screenshots/recording-screen.png)
+
+### Dashboard
+![Dashboard](docs/screenshots/home-page.png)
+
+### Swagger Documentation
+![Swagger Documentation](docs/screenshots/swagger.png)
+
+### Docker Container Deployment
+![Docker Containers](docs/screenshots/docker.png)
+
+---
+
+## ⚙️ Engineering Trade-Offs
+
+During architecture design, key technical decisions were evaluated to balance performance, delivery velocity, and local resource footprint:
+
+### 1. Faster-Whisper vs. Standard OpenAI Whisper
+*   **Decision**: Faster-Whisper (CTranslate2 implementation of Whisper) was selected over standard PyTorch-based OpenAI Whisper.
+*   **Technical Rationale**: CTranslate2 optimizes the Whisper model using 8-bit integer quantization (INT8) on CPU, reducing memory usage by up to 4x and executing up to 4x faster with negligible accuracy loss. This makes local CPU inference highly practical without requiring high-end GPUs.
+
+### 2. FastAPI vs. Django / Flask
+*   **Decision**: FastAPI was selected as the backend framework.
+*   **Technical Rationale**: FastAPI natively supports asynchronous execution (`async`/`await`), which is critical for non-blocking I/O during heavy processing tasks like audio transcoding and model inference. Built-in Pydantic integration ensures strict request/response validation and automatically generates Swagger/OpenAPI documentation.
+
+### 3. PostgreSQL vs. MongoDB / SQLite
+*   **Decision**: PostgreSQL 15 was selected for persistent storage.
+*   **Technical Rationale**: Clinical assessment data is structured and hierarchical (sessions contain audio, which map to transcripts and metrics). PostgreSQL enforces relational integrity via foreign key constraints, provides JSONB columns for flexible word-timestamp storage, and supports async queries via SQLAlchemy. It is chosen over SQLite to support future multi-user concurrent loads.
+
+### 4. Docker Compose vs. Local Execution Scripts
+*   **Decision**: Docker Compose for stack orchestration.
+*   **Technical Rationale**: Standardizing dependencies (FFmpeg binaries, Python libraries, Node runtimes, and PostgreSQL databases) across different OS platforms prevents "it works on my machine" failures. Docker Compose isolates network communication and simplifies environment setup to a single command.
+
+### 5. Next.js vs. Vanilla React
+*   **Decision**: Next.js (with React) was selected for the frontend UI.
+*   **Technical Rationale**: Next.js provides a robust production framework with built-in routing, API routes, and optimized client-side rendering. It allows clean modular layout components for recording audio, validating waveforms, and rendering analytical charts.
+
+---
+
+## 💻 Deployment
+
+Follow these concise steps to spin up the platform locally:
+
+### Local Docker Deployment
+
+1.  **Configure Environment**:
+    Create a local configuration file from the template:
+    ```bash
+    cp .env.example .env
+    ```
+2.  **Launch the Services**:
+    Build and start the containerized application stack:
+    ```bash
+    docker compose up --build -d
+    ```
+
+Once the containers are operational, access the services:
+*   **Frontend Web Client**: `http://localhost:3000`
+*   **Backend REST API**: `http://localhost:8000`
+*   **Swagger API Docs**: `http://localhost:8000/docs`
+
+---
+
+## 💎 Technical Highlights
+
+Key engineering milestones achieved in this project:
+*   **End-to-End Speech AI Pipeline**: Built a seamless pipeline orchestrating audio capture in a Next.js frontend, backend ingestion, FFmpeg standardization, Whisper ASR, metric analysis, and SQL persistence.
+*   **Multilingual ASR Execution**: Implemented auto-detection and CTranslate2 model optimizations supporting English, Hindi, and mixed-mode Hinglish transliteration handling.
+*   **Robust Audio Preprocessing**: Integrated background FFmpeg execution standardizing varying incoming client uploads into clinical-grade mono 16kHz PCM WAV.
+*   **Explainable Clinical Risk Engine**: Built a transparent scoring module that returns a granular breakdown of contributing factors and specific acoustic markers.
+*   **Relational Data Modeling**: Designed a highly normalized PostgreSQL schema capturing temporal, linguistic, session, and scoring data with strict foreign key constraints.
+*   **Production-Grade Containerization**: Structured multi-stage Docker builds to optimize image footprints and configure robust inter-container networking.
 
 ---
 
@@ -387,20 +426,20 @@ Once the backend is running, the interactive OpenAPI/Swagger documentation is av
 ```text
                🏢 CLINICAL SCALABILITY ARCHITECTURE ROADMAP
                
-    [10 Clinics]          [100 Clinics]               [1,000 Clinics]
-   (Single Node)          (Horizontal)                (Microservices)
-  
-   +-----------+          +-----------+          +-----------------------+
-   |  FastAPI  |          | Load Bal. |          | API Gateway (Kong)    |
-   |     +     |          +-----+-----+          +-----------+-----------+
-   | SQLite/PG |                |                            |
-   +-----------+          +-----+-----+          +-----------+-----------+
-                          |  App  x3  |          | K8s Pods (ASR Engine) |
-                          +-----+-----+          +-----------+-----------+
-                                |                            |
-                          +-----+-----+          +-----------+-----------+
-                          | Read Rep. |          | Distributed PG Cluster|
-                          +-----------+          +-----------------------+
+     [10 Clinics]          [100 Clinics]               [1,000 Clinics]
+    (Single Node)          (Horizontal)                (Microservices)
+   
+    +-----------+          +-----------+          +-----------------------+
+    |  FastAPI  |          | Load Bal. |          | API Gateway (Kong)    |
+    |     +     |          +-----+-----+          +-----------+-----------+
+    | SQLite/PG |                |                            |
+    +-----------+          +-----+-----+          +-----------+-----------+
+                           |  App  x3  |          | K8s Pods (ASR Engine) |
+                           +-----+-----+          +-----------+-----------+
+                                 |                            |
+                           +-----+-----+          +-----------+-----------+
+                           | Read Rep. |          | Distributed PG Cluster|
+                           +-----------+          +-----------------------+
 ```
 
 ### 1. Phase 1: 10 Clinics (~1,000 assessments/month)
@@ -420,7 +459,7 @@ Once the backend is running, the interactive OpenAPI/Swagger documentation is av
 
 ---
 
-## 🔒 Security & HIPAA Considerations
+## 🔒 Security & HIPAA Alignment
 
 *   **Audio Encryption**: Uploaded audio files are stored locally in isolated directories with restricted read/write permissions. In cloud staging, files are encrypted at rest using AES-256.
 *   **PII De-Identification**: No direct Patient Health Information (PHI) is stored alongside risk scores. Sessions use randomized UUIDs (`subject_reference`), maintaining isolation from demographic data.
@@ -429,7 +468,7 @@ Once the backend is running, the interactive OpenAPI/Swagger documentation is av
 
 ---
 
-## 💰 Cost Analysis & Optimization
+## 💰 Cost Analysis & Resource Estimation
 
 ### 1. Storage Costs
 *   Standard mono 16kHz PCM WAV files require **~32 KB/sec**.
@@ -444,6 +483,16 @@ Once the backend is running, the interactive OpenAPI/Swagger documentation is av
 
 ---
 
+## ⚠️ Known Limitations
+
+This system is an engineering assessment prototype and has the following constraints:
+*   **Clinical Validation**: The cognitive-linguistic risk scoring engine uses rule-based heuristic metrics. It is not clinically validated, FDA-cleared, or intended to diagnose medical conditions.
+*   **CPU Inference Latency**: The Whisper model execution runs on CPU. Performance is constrained by model size and host system resources, which can lead to higher latency under concurrent load.
+*   **Single-Node Architecture**: The default container configuration is designed for single-host local deployment and lacks active replication, distributed file sharing, and high availability.
+*   **Security & Authentication**: The current system has no user authentication (OAuth/JWT), session-level authorization check, or API rate-limiting, making it unsuitable for direct internet exposure.
+
+---
+
 ## 🔮 Future Improvements
 
 1.  **🎙️ Voice Biometrics Verification**: Implement a Siamese neural network model to verify subject identity and prevent speaker fraud during clinical assessments.
@@ -452,15 +501,6 @@ Once the backend is running, the interactive OpenAPI/Swagger documentation is av
 
 ---
 
-## 💎 Technical Highlights (For Evaluators)
-
-*   **End-to-End System Integration**: Seamless connection from Next.js audio recorder -> FastAPI processing API -> PostgreSQL storage -> Faster-Whisper decoding engine.
-*   **State-of-the-Art Speech AI Pipeline**: Uses automatic language detection and multilingual decoding to preserve English script spelling within Devanagari Hindi text.
-*   **Clinical Explainable AI**: The scoring engine avoids black-box predictions, instead outputting a clear mapping of rule-based metrics, contributing clinical factors, and confidence intervals.
-*   **Docker Orchestration**: Standardized production deployment with multi-stage Dockerfiles.
-
----
-
 ## 🏁 Conclusion
 
-The **Cognitive Voice Intelligence Platform** demonstrates a production-quality implementation of audio engineering, machine learning pipelines, and clinical scoring analytics. It serves as a robust architecture suitable for large-scale clinical validation studies.
+The **Cognitive Voice Intelligence Platform** demonstrates a clean implementation of audio engineering, machine learning pipelines, and clinical scoring analytics. It serves as a robust architecture suitable for large-scale clinical validation studies.
