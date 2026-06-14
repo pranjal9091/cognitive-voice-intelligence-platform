@@ -21,6 +21,9 @@ pinned: false
     *   Next.js
     *   Explainable Risk Scoring
 
+*   **Live Application URL**: [https://cognitive-voice-intelligence-platfo.vercel.app](https://cognitive-voice-intelligence-platfo.vercel.app)
+*   **Interactive API Docs (Swagger)**: [https://rajawat-cognitive-voice-backend.hf.space/docs](https://rajawat-cognitive-voice-backend.hf.space/docs)
+
 ---
 ## 🎥 Demo Video
 
@@ -392,9 +395,16 @@ During architecture design, key technical decisions were evaluated to balance pe
 
 ## 💻 Deployment
 
-Follow these concise steps to spin up the platform locally:
+### 🌐 Production Deployment
+
+The platform is deployed and publicly accessible online:
+*   **Frontend Web Client**: [https://cognitive-voice-intelligence-platfo.vercel.app](https://cognitive-voice-intelligence-platfo.vercel.app)
+*   **Backend REST API**: [https://rajawat-cognitive-voice-backend.hf.space](https://rajawat-cognitive-voice-backend.hf.space)
+*   **Swagger OpenAPI Docs**: [https://rajawat-cognitive-voice-backend.hf.space/docs](https://rajawat-cognitive-voice-backend.hf.space/docs)
 
 ### Local Docker Deployment
+
+Follow these concise steps to spin up the platform locally:
 
 1.  **Configure Environment**:
     Create a local configuration file from the template:
